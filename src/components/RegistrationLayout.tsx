@@ -10,6 +10,10 @@ export default function RegistrationLayout() {
   // 1. STATE FOR MODAL
   const [showModal, setShowModal] = useState(false);
   const [credentials, setCredentials] = useState({ code: "", pass: "" });
+  const [quickRegister, setQuickRegister] = useState({
+    member_code: "",
+    event: "",
+  });
   const navigate = useNavigate();
 
   // 2. STATE FOR FORM DATA
@@ -48,6 +52,9 @@ export default function RegistrationLayout() {
   // 3. HANDLER TO UPDATE STATE
   const handleChange = (field: string, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+  };
+  const handleQuickChange = (field: string, value: string) => {
+    setQuickRegister((prev) => ({ ...prev, [field]: value }));
   };
 
   // 4. BACKEND CALL
@@ -106,8 +113,21 @@ export default function RegistrationLayout() {
               </div>
               <p className="text-xs text-gray-300 mb-6">Already a registered member?</p>
               <div className="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                <FormInput label="MEMBER UNIQUE CODE" placeholder="e.g. WAW-00001-NG" dark />
-                <FormSelect label="SELECT EVENT" options={["16th International Leadership..."]} dark />
+                <FormInput
+                  label="MEMBER UNIQUE CODE"
+                  placeholder="e.g. WAW-00001-NG"
+                  value={quickRegister.member_code}
+                  onChange={(val) => handleQuickChange("member_code", val)}
+                  dark
+                />
+
+                <FormSelect
+                  label="SELECT EVENT"
+                  options={["16th International Leadership..."]}
+                  value={quickRegister.event}
+                  onChange={(val) => handleQuickChange("event", val)}
+                  dark
+                />
                 <button className="bg-church-gold text-white py-3 px-4 rounded-sm text-[10px] font-bold hover:bg-orange-600 transition-all uppercase shadow-lg">
                   Verify & Pay
                 </button>

@@ -1,0 +1,12 @@
+@import "tailwindcss";
+
+@theme {
+  /* Define our church portal design tokens */
+  --color-church-purple: #3d0a3d;
+  --color-church-light: #5e1a5e;
+  --color-church-gold: #f5a623;
+  --color-church-form-bg: #fdf8ff;
+  
+  /* You can also define custom spacing or fonts here if needed */
+  --font-display: "Inter", sans-serif;
+}

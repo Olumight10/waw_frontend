@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Menu, Bell, X, LogOut, LayoutDashboard, 
-  UserCircle, ClipboardList, Clock, Calendar, CheckCircle2,
+  UserCircle, ClipboardList, CheckCircle2,
   ShieldCheck, Users
 } from "lucide-react";
 

@@ -2,11 +2,12 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { 
   Menu, Bell, X, LogOut, LayoutDashboard, 
-  UserCircle, ClipboardList, Clock, Calendar, CheckCircle2 
+  UserCircle, ClipboardList, Clock, Calendar, CheckCircle2,
+  ShieldCheck, Users
 } from "lucide-react";
 
 export default function Dashboard() {
-  const [isSidebarOpen, setSidebarOpen] = useState(false);
+  const [isSidebarOpen, setSidebarOpen] = useState(true);
   const [user, setUser] = useState({ full_name: "Loading...", unique_code: "" });
   const navigate = useNavigate();
 
@@ -20,26 +21,57 @@ export default function Dashboard() {
     fetch(`${import.meta.env.VITE_BACKEND}/api/user/${savedCode}`)
       .then(res => res.json())
       .then(data => {
-        if (data.error) navigate("/");
-        else setUser(data);
+        if (data.error) {
+          navigate("/");
+        } else {
+          setUser(data);
+        }
       })
-      .catch(() => console.error("Fetch error"));
+      .catch((err) => {
+        console.error("Fetch error:", err);
+        navigate("/");
+      });
   }, [navigate]);
 
+  // Handle responsive behavior
+  useEffect(() => {
+    const handleResize = () => {
+      if (window.innerWidth >= 1024) {
+        setSidebarOpen(true);
+      } else {
+        setSidebarOpen(false);
+      }
+    };
+    
+    // Set initial state based on screen size
+    handleResize();
+    
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
+  const toggleSidebar = () => {
+    setSidebarOpen(!isSidebarOpen);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 flex overflow-x-hidden">
+    <div className="min-h-screen bg-gray-50 flex overflow-x-hidden relative">
       
       {/* --- SIDEBAR --- */}
-      {/* The 'translate' classes here handle the collapse/expand logic */}
-      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-church-purple text-white transform transition-transform duration-300 ease-in-out lg:translate-x-0 ${isSidebarOpen ? "translate-x-0" : "-translate-x-full"}`}>
+      <aside className={`fixed inset-y-0 left-0 z-50 w-64 bg-church-purple text-white transform transition-transform duration-300 ease-in-out ${
+        isSidebarOpen ? "translate-x-0" : "-translate-x-full"
+      }`}>
         <div className="p-6 flex flex-col h-full">
           <div className="flex items-center justify-between mb-10">
             <div className="flex items-center gap-3">
                <div className="w-8 h-8 bg-church-gold rounded flex items-center justify-center text-church-purple font-bold">W</div>
                <span className="font-serif text-lg tracking-tight">WAW Portal</span>
             </div>
-            {/* Close button for mobile */}
-            <button onClick={() => setSidebarOpen(false)} className="lg:hidden text-white/50 hover:text-white">
+            <button 
+              onClick={() => setSidebarOpen(false)} 
+              className="lg:hidden text-white/50 hover:text-white"
+              aria-label="Close sidebar"
+            >
               <X size={20}/>
             </button>
           </div>
@@ -57,7 +89,7 @@ export default function Dashboard() {
           </nav>
 
           <button 
-            onClick={() => { localStorage.clear(); navigate("/"); }} 
+            onClick={() => { localStorage.clear(); navigate("/"); }}
             className="flex items-center gap-4 px-4 py-3 text-red-400 hover:bg-red-500/10 rounded-lg transition-all mt-auto"
           >
             <LogOut size={18}/> Logout
@@ -66,20 +98,24 @@ export default function Dashboard() {
       </aside>
 
       {/* --- MAIN CONTENT --- */}
-      <div className={`flex-grow flex flex-col transition-all duration-300 ${isSidebarOpen ? "blur-sm lg:blur-none" : ""}`}>
+      <div className={`flex-grow flex flex-col transition-all duration-300 ${
+        isSidebarOpen ? "lg:ml-64" : "ml-0"
+      }`}>
         
         {/* TOP NAV */}
-        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-40 lg:ml-64">
+        <header className="h-20 bg-white border-b border-gray-100 flex items-center justify-between px-6 sticky top-0 z-40">
           <div className="flex items-center gap-4">
+            {/* Hamburger menu - ALWAYS VISIBLE and above sidebar */}
             <button 
-              onClick={() => setSidebarOpen(true)} // Opens Sidebar
-              className="p-2 text-church-purple hover:bg-gray-100 rounded-lg lg:hidden"
+              onClick={toggleSidebar} 
+              className="p-2 text-church-purple hover:bg-gray-100 rounded-lg transition-colors relative z-50"
+              aria-label={isSidebarOpen ? "Close sidebar" : "Open sidebar"}
             >
               <Menu size={24} />
             </button>
+            
             <div className="hidden md:flex items-center gap-2 text-church-purple/40 italic font-serif">
-               <Calendar size={14} />
-               <span className="text-xs">2026 Academic Year</span>
+               <span className="text-xs font-bold tracking-widest uppercase">A Global Army of Women</span>
             </div>
           </div>
 
@@ -102,22 +138,49 @@ export default function Dashboard() {
         </header>
 
         {/* PAGE BODY */}
-        <div className="p-6 md:p-10 lg:ml-64 transition-all">
+        <div className="p-6 md:p-10 transition-all max-w-7xl mx-auto w-full">
           
           {/* HERO */}
-          <div className="relative h-60 md:h-72 rounded-3xl overflow-hidden shadow-2xl mb-10 group">
+          <div className="relative h-64 md:h-80 rounded-3xl overflow-hidden shadow-2xl mb-10 group bg-church-purple">
             <img 
-              src="https://images.unsplash.com/photo-1475483768296-6163e08872a1?q=80&w=2070" 
-              className="absolute inset-0 w-full h-full object-cover" 
-              alt="Hero BG"
+              src="https://images.unsplash.com/photo-1550745165-9bc0b252726f?q=80&w=2070" 
+              className="absolute inset-0 w-full h-full object-cover opacity-40 mix-blend-overlay" 
+              alt="Registration Theme BG"
             />
-            <div className="absolute inset-0 bg-gradient-to-r from-church-purple via-church-purple/85 to-transparent"></div>
-            <div className="relative h-full flex flex-col justify-center px-8 md:px-12 text-white">
-              <span className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] uppercase w-fit mb-4">Official Member Portal</span>
+            {/* Animated Glows */}
+            <div className="absolute -top-24 -left-24 w-96 h-96 bg-church-gold/20 rounded-full blur-3xl animate-pulse"></div>
+            <div className="absolute -bottom-24 -right-24 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+            
+            <div className="absolute inset-0 bg-gradient-to-r from-church-purple via-church-purple/80 to-transparent"></div>
+            
+            <div className="relative h-full flex flex-col justify-center px-8 md:px-16 text-white">
+              <div className="flex items-center gap-3 mb-6">
+                <div className="p-2 bg-white/10 backdrop-blur-md rounded-lg border border-white/20">
+                  <ShieldCheck className="text-church-gold" size={24} />
+                </div>
+                <span className="bg-white/10 backdrop-blur-md text-white border border-white/20 px-3 py-1 rounded-full text-[9px] font-bold tracking-[0.2em] uppercase">
+                  Verified Portal
+                </span>
+              </div>
+              
               <h2 className="text-3xl md:text-5xl font-serif mb-1">Shalom,</h2>
               <h3 className="text-2xl md:text-4xl font-bold text-church-gold uppercase tracking-tight">{user.full_name}</h3>
-              <p className="text-white/50 font-mono mt-4 tracking-widest text-xs">{user.unique_code}</p>
+              
+              <div className="flex items-center gap-4 mt-6">
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-white/40 uppercase font-bold tracking-tighter">Member ID</span>
+                  <p className="text-white/80 font-mono text-sm tracking-widest">{user.unique_code}</p>
+                </div>
+                <div className="w-[1px] h-8 bg-white/10"></div>
+                <div className="flex flex-col">
+                  <span className="text-[10px] text-white/40 uppercase font-bold tracking-tighter">Status</span>
+                  <p className="text-church-gold text-sm font-bold">Active Member</p>
+                </div>
+              </div>
             </div>
+
+            {/* Subtle background icon */}
+            <Users className="absolute right-10 bottom-[-20px] text-white/5 w-64 h-64 rotate-12" />
           </div>
 
           {/* ACTIVE PROGRAM SECTION */}
@@ -152,8 +215,30 @@ export default function Dashboard() {
               <h4 className="text-lg font-serif text-church-purple font-bold">Upcoming Programs</h4>
             </div>
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-              <ProgramCard title="Global Intercessors' Retreat" date="May 12, 2026" isRegistered={false} />
-              <ProgramCard title="Worship & Wonders Night" date="June 20, 2026" isRegistered={true} />
+              <ProgramCard 
+                title="Global Intercessors' Retreat" 
+                date="May 12 - 15, 2026"
+                location="Mountain Prayer Center, Abuja"
+                imageUrl="https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=2070"
+              />
+              <ProgramCard 
+                title="Worship & Wonders Night" 
+                date="June 20, 2026"
+                location="Glory Dome, Lagos"
+                imageUrl="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=2070"
+              />
+              <ProgramCard 
+                title="Women of Faith Conference" 
+                date="August 15 - 18, 2026"
+                location="International Convention Center, Accra"
+                imageUrl="https://images.unsplash.com/photo-1523580846011-d3a5bc25702b?q=80&w=2070"
+              />
+              <ProgramCard 
+                title="Prayer Summit" 
+                date="September 10 - 13, 2026"
+                location="Prayer Mountain, Nairobi"
+                imageUrl="https://images.unsplash.com/photo-1511632765486-a01980e01a18?q=80&w=2070"
+              />
             </div>
           </section>
 
@@ -171,22 +256,51 @@ export default function Dashboard() {
   );
 }
 
-function ProgramCard({ title, date, isRegistered }: { title: string, date: string, isRegistered: boolean }) {
+function ProgramCard({ title, date, location, imageUrl }: { title: string, date: string, location: string, imageUrl: string }) {
   return (
-    <div className="bg-white p-6 rounded-2xl shadow-sm border border-gray-100 hover:shadow-md transition-all group">
-      <div className="flex justify-between items-start mb-6">
-        <div className="p-3 bg-gray-50 rounded-xl text-church-purple group-hover:bg-church-purple group-hover:text-white transition-colors">
-          <Clock size={20} />
+    <div className="bg-white rounded-2xl shadow-sm border border-gray-100 hover:shadow-xl transition-all group overflow-hidden">
+      {/* Image Container */}
+      <div className="relative h-48 overflow-hidden">
+        <img 
+          src={imageUrl} 
+          alt={title}
+          className="w-full h-full object-cover group-hover:scale-110 transition-transform duration-500"
+        />
+        <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent"></div>
+        
+        {/* Date Badge */}
+        <div className="absolute bottom-3 left-3 bg-white/90 backdrop-blur-sm rounded-lg px-3 py-1.5 shadow-lg">
+          <p className="text-[10px] font-bold text-church-purple uppercase tracking-wider">{date}</p>
         </div>
-        <span className={`px-2.5 py-1 rounded text-[9px] font-bold uppercase tracking-tighter ${isRegistered ? 'bg-green-50 text-green-600' : 'bg-gray-50 text-gray-400'}`}>
-          {isRegistered ? 'Registered' : 'Not Registered'}
-        </span>
+        
+        {/* Upcoming Tag */}
+        <div className="absolute top-3 right-3 bg-church-gold/90 backdrop-blur-sm rounded-full px-3 py-1 shadow-lg">
+          <span className="text-[9px] font-bold text-white uppercase tracking-wider">Upcoming</span>
+        </div>
       </div>
-      <h6 className="font-serif text-lg text-church-purple leading-snug mb-1">{title}</h6>
-      <p className="text-[11px] text-gray-400 mb-6">{date}</p>
-      <button className={`w-full py-3 rounded-xl text-[10px] font-bold tracking-widest transition-all ${isRegistered ? 'border border-church-purple text-church-purple hover:bg-church-purple hover:text-white' : 'bg-church-gold text-white shadow-lg shadow-church-gold/20 hover:scale-[1.02]'}`}>
-        {isRegistered ? 'VIEW DETAILS' : 'REGISTER NOW'}
-      </button>
+
+      {/* Content */}
+      <div className="p-5">
+        <h6 className="font-serif text-lg text-church-purple leading-snug mb-2 line-clamp-2">{title}</h6>
+        
+        <div className="flex items-start gap-2 mb-4">
+          <MapPin size={14} className="text-gray-400 flex-shrink-0 mt-0.5" />
+          <p className="text-[11px] text-gray-500 line-clamp-1">{location}</p>
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <Users size={14} className="text-church-gold" />
+            <span className="text-[10px] text-gray-400">2,500+ going</span>
+          </div>
+          <button className="px-4 py-2 rounded-lg text-[10px] font-bold tracking-widest transition-all border border-church-purple text-church-purple hover:bg-church-purple hover:text-white">
+            VIEW DETAILS
+          </button>
+        </div>
+      </div>
     </div>
   );
 }
+
+// Add MapPin icon if not already imported
+import { MapPin } from "lucide-react";

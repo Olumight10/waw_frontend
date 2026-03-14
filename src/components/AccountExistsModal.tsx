@@ -1,20 +1,22 @@
 import { useState } from "react";
-import { X } from "lucide-react"; // [cite: 1068]
+import { X } from "lucide-react";
 import RecoveryForm from "./RecoveryForm";
 
 interface AccountExistsModalProps {
   uniqueCode: string;
   onLoginSuccess: (code: string) => void;
-  onClose: () => void; // Added onClose prop
+  onClose: () => void;
 }
 
 export default function AccountExistsModal({ uniqueCode, onLoginSuccess, onClose }: AccountExistsModalProps) {
   const [view, setView] = useState<'login' | 'forgotPassword' | 'forgotCode'>('login');
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // Added Loading State
 
   const handleLogin = async () => {
     setError("");
+    setLoading(true); // Disable buttons
     try {
       const response = await fetch(`${import.meta.env.VITE_BACKEND}/api/login`, {
         method: "POST",
@@ -22,28 +24,24 @@ export default function AccountExistsModal({ uniqueCode, onLoginSuccess, onClose
         body: JSON.stringify({ unique_code: uniqueCode, password }),
       });
       const data = await response.json();
+      
       if (!response.ok) throw new Error(data.error || "Login failed");
+      
       onLoginSuccess(uniqueCode);
     } catch (err: any) {
       setError(err.message);
+    } finally {
+      setLoading(false); // Enable buttons
     }
   };
 
   return (
-    // Background Overlay: Clicking here triggers onClose
-    <div 
-      className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4"
-      onClick={onClose}
-    >
-      {/* Modal Container: stopPropagation prevents closing when clicking inside */}
-      <div 
-        className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-8 border-t-8 relative ${view === 'login' ? 'border-red-500' : 'border-church-gold'}`}
-        onClick={(e) => e.stopPropagation()}
-      >
-        {/* Close Button (X) */}
+    <div className="fixed inset-0 bg-black/60 backdrop-blur-sm z-[100] flex items-center justify-center p-4" onClick={!loading ? onClose : undefined}>
+      <div className={`bg-white rounded-xl shadow-2xl max-w-md w-full p-8 border-t-8 relative ${view === 'login' ? 'border-red-500' : 'border-church-gold'}`} onClick={(e) => e.stopPropagation()}>
         <button 
-          onClick={onClose}
-          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors"
+          onClick={onClose} 
+          disabled={loading}
+          className="absolute top-4 right-4 text-gray-400 hover:text-gray-600 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
         >
           <X size={20} />
         </button>
@@ -63,17 +61,30 @@ export default function AccountExistsModal({ uniqueCode, onLoginSuccess, onClose
               </div>
               <div>
                 <label className="text-[10px] font-bold text-gray-400 uppercase tracking-widest">Enter Password</label>
-                <input type="password" value={password} onChange={(e) => setPassword(e.target.value)} className="w-full bg-white border border-gray-200 p-3 rounded mt-1 focus:border-church-gold outline-none" />
+                <input 
+                  type="password" 
+                  value={password} 
+                  onChange={(e) => setPassword(e.target.value)} 
+                  disabled={loading}
+                  className="w-full bg-white border border-gray-200 p-3 rounded mt-1 focus:border-church-gold outline-none disabled:bg-gray-100 disabled:cursor-not-allowed" 
+                />
               </div>
+              
               {error && <p className="text-red-500 text-xs">{error}</p>}
               
               <div className="flex flex-col gap-2 mt-2">
-                <button onClick={() => setView('forgotPassword')} className="text-[10px] text-church-gold hover:underline text-left uppercase font-bold">Forgot Password?</button>
-                <button onClick={() => setView('forgotCode')} className="text-[10px] text-church-gold hover:underline text-left uppercase font-bold">Forgot Unique Code?</button>
+                <button onClick={() => setView('forgotPassword')} disabled={loading} className="text-[10px] text-church-gold hover:underline text-left uppercase font-bold disabled:opacity-50 disabled:cursor-not-allowed">Forgot Password?</button>
+                <button onClick={() => setView('forgotCode')} disabled={loading} className="text-[10px] text-church-gold hover:underline text-left uppercase font-bold disabled:opacity-50 disabled:cursor-not-allowed">Forgot Unique Code?</button>
               </div>
             </div>
 
-            <button onClick={handleLogin} className="w-full bg-church-purple text-white py-4 rounded-lg font-bold text-sm uppercase tracking-widest hover:bg-black transition-all shadow-lg">Login</button>
+            <button 
+              onClick={handleLogin} 
+              disabled={loading} 
+              className={`w-full text-white py-4 rounded-lg font-bold text-sm uppercase tracking-widest shadow-lg transition-all ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-church-purple hover:bg-black'}`}
+            >
+              {loading ? 'Logging in...' : 'Login'}
+            </button>
           </>
         ) : (
           <RecoveryForm type={view === 'forgotPassword' ? 'password' : 'code'} onBack={() => setView('login')} />

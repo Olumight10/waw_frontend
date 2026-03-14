@@ -1,9 +1,11 @@
 import Navbar from "./components/Navbar";
 import Hero from "./components/Hero";
 import RegistrationLayout from "./components/RegistrationLayout";
-import Footer from "./components/Footer"; // Import the Footer component
+import Footer from "./components/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
+import MyProfile from "./pages/MyProfile";
+import Records from "./pages/Records"; // <-- NEW IMPORT
 
 function App() {
   return (
@@ -20,6 +22,8 @@ function App() {
           </div>
         } />
         <Route path="/dashboard" element={<Dashboard />} />
+        <Route path="/profile" element={<MyProfile />} />
+        <Route path="/records" element={<Records />} /> {/* <-- NEW ROUTE */}
       </Routes>
     </Router>
   );

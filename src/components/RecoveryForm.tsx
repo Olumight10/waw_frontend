@@ -11,7 +11,6 @@ export default function RecoveryForm({ type, onBack }: RecoveryFormProps) {
   const [message, setMessage] = useState("");
   const [error, setError] = useState("");
   const [recoveredCode, setRecoveredCode] = useState("");
-  
   const [fields, setFields] = useState({
     unique_code: "",
     full_name: "",
@@ -25,7 +24,7 @@ export default function RecoveryForm({ type, onBack }: RecoveryFormProps) {
     setError("");
     setMessage("");
     setLoading(true);
-
+    
     const endpoint = type === 'password' ? '/api/forgot-password' : '/api/forgot-code';
     
     try {
@@ -34,10 +33,10 @@ export default function RecoveryForm({ type, onBack }: RecoveryFormProps) {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(fields),
       });
-
       const data = await response.json();
+      
       if (!response.ok) throw new Error(data.error || "Verification failed");
-
+      
       if (type === 'password') {
         setMessage("Password updated successfully! You can now login.");
       } else {
@@ -71,7 +70,7 @@ export default function RecoveryForm({ type, onBack }: RecoveryFormProps) {
       {error && <div className="p-3 bg-red-50 text-red-600 rounded text-xs">{error}</div>}
 
       {!recoveredCode && (
-        <div className="grid grid-cols-1 gap-3">
+        <div className={`grid grid-cols-1 gap-3 ${loading ? "opacity-50 pointer-events-none" : ""}`}>
           {type === 'password' && (
             <FormInput label="Unique Code" value={fields.unique_code} onChange={(v) => setFields({...fields, unique_code: v})} />
           )}
@@ -90,19 +89,20 @@ export default function RecoveryForm({ type, onBack }: RecoveryFormProps) {
 
       <div className="flex flex-col gap-3 mt-6">
         {!recoveredCode && (
-          <button 
+          <button
             onClick={handleSubmit}
             disabled={loading}
-            className="w-full bg-church-gold text-white py-3 rounded-lg font-bold text-xs uppercase shadow-lg hover:bg-orange-600 transition-all"
+            className={`w-full text-white py-3 rounded-lg font-bold text-xs uppercase shadow-lg transition-all ${loading ? 'bg-gray-400 cursor-not-allowed' : 'bg-church-gold hover:bg-orange-600'}`}
           >
             {loading ? "Verifying..." : "Verify & Process"}
           </button>
         )}
-        <button 
+        <button
           onClick={onBack}
-          className="text-xs text-gray-400 hover:text-church-purple transition-colors uppercase font-bold"
+          disabled={loading}
+          className="text-xs text-gray-400 hover:text-church-purple transition-colors uppercase font-bold disabled:opacity-50 disabled:cursor-not-allowed"
         >
-          ← Back to Login
+          Back to Login
         </button>
       </div>
     </div>

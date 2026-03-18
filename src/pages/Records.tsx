@@ -178,8 +178,8 @@ function RecordsContent({ user }: { user: any }) {
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          {filteredEvents.map((evt: any) => (
-            <div key={evt.abbrev} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
+        {filteredEvents.map((evt: any, index: number) => (
+          <div key={evt.prefix || index} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 flex flex-col justify-between">
               <div>
                 <h4 className="font-serif text-lg text-church-purple leading-tight mb-3">{evt.event_name}</h4>
                 <div className="flex items-center gap-2 text-xs text-gray-500 mb-6">

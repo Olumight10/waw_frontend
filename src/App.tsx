@@ -5,7 +5,8 @@ import Footer from "./components/Footer";
 import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
 import Dashboard from "./pages/Dashboard";
 import MyProfile from "./pages/MyProfile";
-import Records from "./pages/Records"; // <-- NEW IMPORT
+import Records from "./pages/Records"; 
+import EventPortal from "./pages/EventPortal"; // NEW IMPORT
 
 function App() {
   return (
@@ -23,7 +24,8 @@ function App() {
         } />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/profile" element={<MyProfile />} />
-        <Route path="/records" element={<Records />} /> {/* <-- NEW ROUTE */}
+        <Route path="/records" element={<Records />} />
+        <Route path="/portal" element={<EventPortal />} /> {/* NEW ROUTE */}
       </Routes>
     </Router>
   );

@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import PortalLayout from "../components/PortalLayout";
-import { Users, Printer, Video, Lock, UserCheck, Calendar, MapPin } from "lucide-react";
+import { Users, Printer, Video, Lock, UserCheck, Calendar, MapPin, ShieldCheck } from "lucide-react";
 import EventRegistrationModal from "../components/EventRegistrationModal";
 import PrintTagModal from "../components/PrintTagModal";
 
@@ -59,6 +59,40 @@ function EventPortalContent({ user }: { user: any }) {
     }
   };
 
+  // NEW: Dynamic Styling and Layout for the User Status/Scope Badge
+  const getRoleBadge = (userObj: any) => {
+    const s = (userObj?.status || 'member').toLowerCase();
+    
+    let color = "bg-white/20 text-white border-white/40 backdrop-blur-md";
+    let icon = <UserCheck size={16} />;
+    
+    let displayRole = (userObj?.status || 'Member').toUpperCase();
+    let displayScope = "";
+
+    if (s === 'super admin') {
+      color = "bg-purple-900 text-white border-purple-500 shadow-lg shadow-purple-900/50";
+      icon = <ShieldCheck size={16} />;
+    } else if (s === 'admin') {
+      color = "bg-red-600 text-white border-red-400 shadow-lg shadow-red-600/50";
+      icon = <ShieldCheck size={16} />;
+    } else if (s === 'registrar') {
+      color = "bg-blue-600 text-white border-blue-400 shadow-lg shadow-blue-600/50";
+      icon = <UserCheck size={16} />;
+    }
+
+    // Attach scope and detail if the user isn't just a basic member
+    if (s !== 'member' && userObj?.scope && userObj.scope.toLowerCase() !== 'nil') {
+      displayScope = ` | ${userObj.scope.toUpperCase().replace('_', ' ')}`;
+      if (userObj?.detail && userObj.detail.toLowerCase() !== 'nil') {
+        displayScope += `: ${userObj.detail.toUpperCase()}`;
+      }
+    }
+
+    return { color, icon, label: `${displayRole}${displayScope}` };
+  };
+
+  const roleInfo = getRoleBadge(user);
+
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto w-full pb-20">
       
@@ -80,11 +114,15 @@ function EventPortalContent({ user }: { user: any }) {
         <div className="absolute inset-0 bg-gradient-to-t from-church-purple via-church-purple/80 to-transparent"></div>
         
         <div className="relative z-10 p-8 md:p-12 flex flex-col justify-end min-h-[250px] md:min-h-[300px]">
-          <div className="flex items-center gap-2 mb-4">
-            <span className="bg-church-gold text-white px-3 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase shadow-sm">
-              Active Event Portal
-            </span>
+          
+          <div className="flex items-center mb-4 w-full">
+            {/* The Highly Visible Status/Scope Badge replacing "Active Event Portal" */}
+            <div className={`flex items-center gap-2 px-4 py-1.5 rounded-full text-xs font-bold tracking-widest shadow-md border ${roleInfo.color}`}>
+              {roleInfo.icon}
+              {roleInfo.label}
+            </div>
           </div>
+
           <h1 className="text-3xl md:text-5xl font-serif mb-4 leading-tight">
             {event.event_name}
           </h1>
@@ -108,7 +146,6 @@ function EventPortalContent({ user }: { user: any }) {
           onClose={() => setShowRegModal(false)} 
           onSuccess={() => {
             alert("Member Registered Successfully!");
-            // Refresh Log Data
             fetch(`${import.meta.env.VITE_BACKEND}/api/registration-log/${user.unique_code}`)
               .then(res => res.json())
               .then(data => setRegLog(data));
@@ -178,7 +215,6 @@ function EventPortalContent({ user }: { user: any }) {
                   <span className="text-gray-800">{new Date(regLog.myRegistration.time).toLocaleString()}</span>
                 </div>
                 
-                {/* NEW: Method Added Here */}
                 <div className="flex justify-between border-b border-gray-200 pb-2">
                   <span className="text-gray-500 font-bold">Attendance Method:</span> 
                   <span className={`font-bold capitalize ${statusData?.method === 'online' ? 'text-green-600' : 'text-church-purple'}`}>
@@ -200,7 +236,6 @@ function EventPortalContent({ user }: { user: any }) {
                   <span className="text-green-600 font-bold">Verified & Registered</span>
                 </div>
                 
-                {/* NEW: Method Added to Legacy View Here */}
                 <div className="flex justify-between border-b border-gray-200 pb-2">
                   <span className="text-gray-500 font-bold">Attendance Method:</span> 
                   <span className={`font-bold capitalize ${statusData?.method === 'online' ? 'text-green-600' : 'text-church-purple'}`}>

@@ -25,16 +25,20 @@ export default function EventRegistrationModal({ event, userCode, onClose, onSuc
   const [loading, setLoading] = useState(false);
 
   // --- PAYSTACK CONFIGURATION (OPTION 1: THE QUICK FIX) ---
+// Determine who is actually being registered to track it in Paystack
+  const codeBeingRegistered = (isRegisteringOthers && formData.targetCode) ? formData.targetCode : userCode;
+
+  // --- PAYSTACK CONFIGURATION (OPTION 1: THE QUICK FIX) ---
   const paystackConfig = {
-    reference: `WAW_${new Date().getTime()}_${Math.floor(Math.random() * 1000000)}`,
+    // Format: WAW_WAW-00001-NG_1710860000000 (Guarantees uniqueness even on retries)
+    reference: `${codeBeingRegistered}_${new Date().getTime()}`,
     email: formData.billingEmail,
     // ALWAYS charge in NGN under the hood so Paystack doesn't block the transaction
-    amount: baseFeeNGN * 100, // Paystack requires the lowest denomination (kobo)
+    amount: baseFeeNGN * 100, 
     publicKey: import.meta.env.VITE_PAYSTACK_PUBLIC_KEY || "pk_test_xxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx", 
     // ALWAYS force currency to NGN for the processor
     currency: "NGN", 
   };
-
   const initializePayment = usePaystackPayment(paystackConfig);
 
   // This runs ONLY after Paystack successfully deducts the money

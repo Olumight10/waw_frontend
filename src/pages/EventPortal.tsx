@@ -62,7 +62,7 @@ function EventPortalContent({ user }: { user: any }) {
   return (
     <div className="p-6 md:p-10 max-w-7xl mx-auto w-full pb-20">
       
-      {/* NEW: Dynamic Event Hero Banner */}
+      {/* Dynamic Event Hero Banner */}
       <div className="relative rounded-3xl overflow-hidden shadow-2xl mb-10 bg-church-purple text-white group">
         {event.pic && event.pic !== 'nil' ? (
           <img 
@@ -177,6 +177,15 @@ function EventPortalContent({ user }: { user: any }) {
                   <span className="text-gray-500 font-bold">Registered On:</span> 
                   <span className="text-gray-800">{new Date(regLog.myRegistration.time).toLocaleString()}</span>
                 </div>
+                
+                {/* NEW: Method Added Here */}
+                <div className="flex justify-between border-b border-gray-200 pb-2">
+                  <span className="text-gray-500 font-bold">Attendance Method:</span> 
+                  <span className={`font-bold capitalize ${statusData?.method === 'online' ? 'text-green-600' : 'text-church-purple'}`}>
+                    {statusData?.method || "Not specified"}
+                  </span>
+                </div>
+
                 <div className="flex justify-between pb-2">
                   <span className="text-gray-500 font-bold">Registered By:</span> 
                   <span className="text-church-purple font-mono font-bold bg-purple-100 px-2 py-0.5 rounded">
@@ -190,6 +199,15 @@ function EventPortalContent({ user }: { user: any }) {
                   <span className="text-gray-500 font-bold">Status:</span> 
                   <span className="text-green-600 font-bold">Verified & Registered</span>
                 </div>
+                
+                {/* NEW: Method Added to Legacy View Here */}
+                <div className="flex justify-between border-b border-gray-200 pb-2">
+                  <span className="text-gray-500 font-bold">Attendance Method:</span> 
+                  <span className={`font-bold capitalize ${statusData?.method === 'online' ? 'text-green-600' : 'text-church-purple'}`}>
+                    {statusData?.method || "Not specified"}
+                  </span>
+                </div>
+
                 <div className="flex justify-between pb-2">
                   <span className="text-gray-500 font-bold">Log Details:</span> 
                   <span className="text-gray-400 italic">Time/Who not captured (Legacy record)</span>
